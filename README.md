@@ -12,7 +12,9 @@
 ./whishow.exe <video path>
 
   例如：
+  
   离线文件 ./whishow.exe test.mp4
+  
   在线流 ./whishow.exe rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp
 
 
