@@ -1,7 +1,7 @@
 # Whishow
 ![avatar](img/img1.png)
 
-#### Whistream（微流）是基于Whisper后端的的流式语音识别工具，支持rtsp/rtmp/mp4等视频流在线语音识别
+#### Whistream（微流）是基于Whisper语音识别的的在线字幕生成工具，支持rtsp/rtmp/mp4等视频流在线语音识别
 
 ## 1. whishow介绍
 #### whishow（微秀）是在线音视频流播放python实现，支持rtsp/rtmp/mp4等输入，也是whistream的前端。基本实现原理如下：
