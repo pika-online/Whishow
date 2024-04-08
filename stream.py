@@ -27,6 +27,8 @@ class STREAM():
         self.audio_cache_size = cache_size*self.audio_dst_fps
         self.video_cache_size = cache_size*self.video_dst_fps
         self.video_dst_frame_size = [640,320]
+        self.at = self.wt = -1
+        self.start_record = False
         init_audio_cache(self.audio_cache_size)
         init_video_cache(self.video_cache_size)
         
@@ -95,24 +97,30 @@ class STREAM():
 
             if packet.stream.type == 'audio':
                 for frame in packet.decode():
-                    # print("A",frame.pts)
-                    frame = frame.to_ndarray()[0]
-                    frame = soxr.resample(frame,in_rate=info_audio['audio_sample_rate'],out_rate=self.audio_dst_fps)
-                    frame = audio_f2i(frame,16)
-                    push_audio_cache(frame)
-                    audio_count += 1
-                    
+                    print("A:%.2f"%frame.time)
+                    self.at = frame.time
+                    if self.start_record:
+                        frame = frame.to_ndarray()[0]
+                        frame = soxr.resample(frame,in_rate=info_audio['audio_sample_rate'],out_rate=self.audio_dst_fps)
+                        frame = audio_f2i(frame,16)
+                        push_audio_cache(frame)
+                        audio_count += 1       
 
             if packet.stream.type == 'video':
                 for frame in packet.decode():
-                    # print("V",frame.pts)
-                    frame = frame.to_image()
-                    frame = np.asarray(frame)
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    frame = cv2.resize(frame,video_frame_size,interpolation=cv2.INTER_CUBIC)
-                    frame= cv2.imencode('.jpg', frame,[cv2.IMWRITE_JPEG_QUALITY, 90])[1]
-                    push_video_cache(frame)
-                    video_count += 1
+                    print("V:%.2f"%frame.time)
+                    self.vt = frame.time
+                    if self.start_record:
+                        frame = frame.to_image()
+                        frame = np.asarray(frame)
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        frame = cv2.resize(frame,video_frame_size,interpolation=cv2.INTER_CUBIC)
+                        frame= cv2.imencode('.jpg', frame,[cv2.IMWRITE_JPEG_QUALITY, 90])[1]
+                        push_video_cache(frame)
+                        video_count += 1
+            
+            if self.at>0 :
+                self.start_record = True
 
             if(time.time()-s>1):
                 self.P("Aduio(FPS): %sK"%audio_count)
@@ -130,5 +138,6 @@ if __name__ == "__main__":
 
     stm = STREAM()
     stm.init_cache(2*60)
-    stm.read("rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp")
+    # stm.read("rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp")
+    stm.read("test1.mp4")
     pass 

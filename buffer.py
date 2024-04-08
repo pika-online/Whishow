@@ -60,7 +60,7 @@ def push_video_cache(frame):
     LOCK_VIDEO.release()
     if (time.time()-VS)>1:
         VS = time.time()
-        printc(f"push_audio_cache, start:{VIDEO_BUFFER['start']}, end:{VIDEO_BUFFER['end']}",LOG_COLOR)
+        printc(f"push_video_cache, start:{VIDEO_BUFFER['start']}, end:{VIDEO_BUFFER['end']}",LOG_COLOR)
 
 def read_audio_cache(start,end):
     global AUDIO_BUFFER

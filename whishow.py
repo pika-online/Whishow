@@ -43,7 +43,7 @@ class PLAY():
         
     def init_video_driver(self):
         self.win_name = "frame"
-        self.frame_wait = 25
+        self.frame_wait = 30
         pass
 
 
