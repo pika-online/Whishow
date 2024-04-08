@@ -8,6 +8,10 @@ from buffer import *
 from stream import * 
 import cv2 
 import pyaudio
+from PIL import Image, ImageDraw, ImageFont
+
+
+
 
 class PLAY():
     def __init__(self) -> None:
@@ -41,9 +45,32 @@ class PLAY():
                                             output=True)
         
     def init_video_driver(self):
-        self.win_name = "frame"
-        self.frame_wait = 25
+        self.win_name = "Whishow Player"
+        self.frame_wait = 10
         pass
+
+    def rewrite_video_frame(self,frame,text='[add ASR content here]',side=0.2):
+        h,w,c = frame.shape
+        bg = np.zeros([int(h*(1+side*2)),w,c],dtype="uint8")
+        s1 = int(side*h)
+        s2 = int(side*h+h)
+        bg[s1:s2,:,:] = frame
+
+        img = Image.fromarray(cv2.cvtColor(bg, cv2.COLOR_BGR2RGB))
+        draw = ImageDraw.Draw(img)
+        font_size = 20*(bg.shape[0]-s2)/64
+        font = ImageFont.truetype("msjh.ttc", font_size, encoding="utf-8")
+        left, top, right, bottom = draw.textbbox((0, 0), text, font)
+        # text_width, text_height = draw.textsize(text)
+        text_x = (bg.shape[1] - (right-left)) / 2
+        text_y = s2+ ( bg.shape[0]-s2 -(bottom-top)) / 2
+
+        draw.text((text_x,text_y), text, (255,255,255), font=font)
+        return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+    
+
+
+
 
 
     def listen_audio(self):
@@ -64,6 +91,7 @@ class PLAY():
                     s = time.time()
                     for frame in self.video_data:
                         frame = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR)
+                        frame = self.rewrite_video_frame(frame,text="[Whistrem Subtitle]")
                         cv2.imshow(self.win_name, frame)
                         key = cv2.waitKey(self.frame_wait)
                     self.P(f"listen_video -> frame[{self.vid}] -> cost:{time.time()-s}")
@@ -100,13 +128,15 @@ if __name__ == "__main__":
 
     stm = STREAM()
     ply = PLAY()
+    url = "test.mp4"
+    url = "rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp"
     url = sys.argv[1]
 
     # 读取视频流和音频流
     def process1():
         global stm
         stm.init_cache(2*60)
-        stm.read(url)
+        stm.read(url,[600,600])
 
     # 播放视频
     def process2():
