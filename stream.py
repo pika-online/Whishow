@@ -97,7 +97,7 @@ class STREAM():
 
             if packet.stream.type == 'audio':
                 for frame in packet.decode():
-                    print("A:%.2f"%frame.time)
+                    # print("A:%.2f"%frame.time)
                     self.at = frame.time
                     if self.start_record:
                         frame = frame.to_ndarray()[0]
@@ -108,7 +108,7 @@ class STREAM():
 
             if packet.stream.type == 'video':
                 for frame in packet.decode():
-                    print("V:%.2f"%frame.time)
+                    # print("V:%.2f"%frame.time)
                     self.vt = frame.time
                     if self.start_record:
                         frame = frame.to_image()

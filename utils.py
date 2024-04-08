@@ -67,9 +67,13 @@ def printc(s, color="", ):
     else:
         print(s)
 
-def point2hour(point):
-    s = point//16000
-    ms = (point%16000)/16000
+def point2hour(point,mode="audio"):
+    if mode=="audio":
+        s = point//16000
+        ms = (point%16000)/16000
+    else:
+        s = point//30
+        ms = (point%30)/30
     h = s//3600
     m = (s-h*3600)//60
     s = s%60

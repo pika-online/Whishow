@@ -49,7 +49,8 @@ def push_audio_cache(frame):
     LOCK_AUDIO.release()
     if (time.time()-AS)>1:
         AS = time.time()
-        printc(f"push_audio_cache, start:{AUDIO_BUFFER['start']}, end:{AUDIO_BUFFER['end']}",LOG_COLOR)
+        printc("push_audio_cache, start:%s, end:%s"%(point2hour(AUDIO_BUFFER['start']),
+                                                     point2hour(AUDIO_BUFFER['end'])),LOG_COLOR)
     
 def push_video_cache(frame):
     global VIDEO_BUFFER,VS
@@ -60,7 +61,8 @@ def push_video_cache(frame):
     LOCK_VIDEO.release()
     if (time.time()-VS)>1:
         VS = time.time()
-        printc(f"push_video_cache, start:{VIDEO_BUFFER['start']}, end:{VIDEO_BUFFER['end']}",LOG_COLOR)
+        printc("push_video_cache, start:%s, end:%s"%(point2hour(VIDEO_BUFFER['start'],mode="video"),
+                                                     point2hour(VIDEO_BUFFER['end'],mode="video")),LOG_COLOR)
 
 def read_audio_cache(start,end):
     global AUDIO_BUFFER

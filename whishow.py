@@ -8,7 +8,6 @@ from buffer import *
 from stream import * 
 import cv2 
 import pyaudio
-from pydub.playback import play
 
 class PLAY():
     def __init__(self) -> None:
@@ -43,7 +42,7 @@ class PLAY():
         
     def init_video_driver(self):
         self.win_name = "frame"
-        self.frame_wait = 30
+        self.frame_wait = 25
         pass
 
 
