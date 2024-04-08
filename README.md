@@ -10,7 +10,7 @@
   2. 音视频帧会进行缓存到buffer（参考buffer.py）
   3. 线程2： 使用pyaudio和opencv 并行播放buffer上的视频帧和音频波点 （参考whishow.py）
 
-exe下载地址：
+exe下载地址：https://github.com/coolEphemeroptera/Whishow/releases
 
 
 
