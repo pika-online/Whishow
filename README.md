@@ -12,6 +12,7 @@
 
 exe下载地址：https://github.com/coolEphemeroptera/Whishow/releases
 
+#### whistream将在whishow基础上引入whisper进行在线语音识别生成视频字幕
 
 
 ## 2. 使用
