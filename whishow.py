@@ -58,8 +58,9 @@ class PLAY():
 
         img = Image.fromarray(cv2.cvtColor(bg, cv2.COLOR_BGR2RGB))
         draw = ImageDraw.Draw(img)
-        font_size = 20*(bg.shape[0]-s2)/64
-        font = ImageFont.truetype("msjh.ttc", font_size, encoding="utf-8")
+        font_size = 15
+        # font = ImageFont.truetype("msjh.ttc", font_size, encoding="utf-8")
+        font = ImageFont.truetype("./NotoSans-Regular.ttf", font_size, encoding="utf-8")
         left, top, right, bottom = draw.textbbox((0, 0), text, font)
         # text_width, text_height = draw.textsize(text)
         text_x = (bg.shape[1] - (right-left)) / 2
