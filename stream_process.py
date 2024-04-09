@@ -70,14 +70,14 @@ class SPROCESS():
 
         while self.running:
             if self.seek_a+self.step_a <= get_audio_latest():
-                if self.asr and not is_asr_results_empty():continue
+                if self.asr and is_asr_results_empty():continue
                 chunk_a = read_audio_cache(self.seek_a,self.seek_a+self.step_a)
                 push_audio2_cache(chunk_a)
                 self.seek_a += self.step_a
                 self.aid += 1
 
             if self.seek_v+self.step_v <= get_video_latest():
-                if self.asr and not is_asr_results_empty():continue
+                if self.asr and is_asr_results_empty():continue
                 chunk_v = read_video_cache(self.seek_v,self.seek_v+self.step_v)
                 seek_ = self.seek_v/VIDEO_FPS
                 for frame in chunk_v:
