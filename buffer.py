@@ -92,3 +92,33 @@ def get_video_latest():
     LOCK_VIDEO.release()
     return tmp
 
+ASR_RESULTS = []
+SEEK_ASR = 0
+LOCK_ASR = threading.Lock()
+
+
+def init_asr_results():
+    global ASR_RESULTS,SEEK_ASR
+    with LOCK_ASR:
+        ASR_RESULTS = []
+        SEEK_ASR = 0
+
+def is_asr_results_empty():
+    global ASR_RESULTS
+    with LOCK_ASR:
+        return len(ASR_RESULTS)==0
+    
+def seek_in_asr_result(seek):
+    global ASR_RESULTS,SEEK_ASR
+    with LOCK_ASR:
+        size = len(ASR_RESULTS)
+        for i in range(SEEK_ASR,size):
+            if ASR_RESULTS[i][0] <= seek <= ASR_RESULTS[i][1]:
+                SEEK_ASR = i 
+                return ASR_RESULTS[i][2]
+    return ""
+
+def push_asr_result(res):
+    global ASR_RESULTS
+    with LOCK_ASR:
+        ASR_RESULTS.append(res)

@@ -11,21 +11,22 @@ import soxr
 
 AUDIO_FPS = 16000
 VIDEO_FPS = 30
+VIDEO_FRAME_SIZE= [640,320]
 START_STREAM = False
 
 def check_stream():
     global START_STREAM
     return START_STREAM
 
-
 class STREAM():
     def __init__(self) -> None:
         self.pcolor = "yellow"
+        self.lock = threading.Lock()
 
     def P(self,text):
         printc("%s: %s"%(self.__class__.__name__,text),self.pcolor)
 
-    def init_cache(self,cache_size):
+    def init_state(self,cache_size):
         self.running = True
         self.audio_dst_fps = AUDIO_FPS
         self.video_dst_fps = VIDEO_FPS
@@ -41,7 +42,7 @@ class STREAM():
     def init_container(self,url):
         global VIDEO_FPS,START_STREAM
         # 打开RTSP流
-        self.container = av.open(url)
+        self.container = av.open(url,buffer_size=32768*10)
 
         # 查找视频流和音频流
         video_stream = self.container.streams.video[0]
@@ -61,8 +62,11 @@ class STREAM():
         self.info_video['video_height'] = video_stream.height
         self.info_video['video_pixel_format'] = video_stream.format.name
         self.info_video['video_codec_name'] = video_stream.codec.name
-        self.info_video['video_sample_rate'] = video_stream.average_rate.as_integer_ratio()
-        self.info_video['video_sample_rate'] = int(self.info_video['video_sample_rate'][0]/self.info_video['video_sample_rate'][1])
+        if not video_stream.average_rate:
+            self.info_video['video_sample_rate'] = 30
+        else:
+            self.info_video['video_sample_rate'] = video_stream.average_rate.as_integer_ratio()
+            self.info_video['video_sample_rate'] = int(self.info_video['video_sample_rate'][0]/self.info_video['video_sample_rate'][1])
         for key in self.info_video:self.P(f"{key}: {self.info_video[key]}")
         self.P("=================================================")
         print()
@@ -70,6 +74,9 @@ class STREAM():
         START_STREAM = True
         self.P("Finished to init the container ..")
 
+    def terminate(self):
+        with self.lock:
+            return self.running
         
     def modify_video_size(self,video_src_frame_size):
         def finetune(size):
@@ -97,7 +104,7 @@ class STREAM():
     def read(self,url,video_dst_frame_size=[-1,-1],cache_size=10*60):
 
         self.init_container(url)
-        self.init_cache(cache_size)
+        self.init_state(cache_size)
 
         if video_dst_frame_size != [-1,-1]:self.video_dst_frame_size = video_dst_frame_size
         video_src_frame_size = [self.info_video['video_width'],self.info_video['video_height']]
@@ -107,6 +114,7 @@ class STREAM():
         s = time.time()
         video_count = 0
         audio_count = 0
+        pcount = 0
         for packet in self.container.demux():
 
             if not self.running:return
@@ -134,7 +142,8 @@ class STREAM():
                         frame= cv2.imencode('.jpg', frame,[cv2.IMWRITE_JPEG_QUALITY, 90])[1]
                         push_video_cache(frame)
                         video_count += 1
-            
+            pcount += 1
+
             if self.at>0 :
                 self.start_record = True
 
@@ -149,10 +158,10 @@ class STREAM():
         # 关闭容器和输出文件
         self.container.close()
 
-
 if __name__ == "__main__":
 
     stm = STREAM()
+    stm.init_state(2*60)
     # stm.read("rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp")
-    stm.read("test1.mp4",cache_size=10*60)
+    stm.read("test.mp4",video_dst_frame_size=[400,400],cache_size=10*60)
     pass 
