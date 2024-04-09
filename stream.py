@@ -11,6 +11,11 @@ import soxr
 
 AUDIO_FPS = 16000
 VIDEO_FPS = 30
+START_STREAM = False
+
+def check_stream():
+    global START_STREAM
+    return START_STREAM
 
 
 class STREAM():
@@ -31,6 +36,40 @@ class STREAM():
         self.start_record = False
         init_audio_cache(self.audio_cache_size)
         init_video_cache(self.video_cache_size)
+        self.P("Finished to init the cache ..")
+
+    def init_container(self,url):
+        global VIDEO_FPS,START_STREAM
+        # 打开RTSP流
+        self.container = av.open(url)
+
+        # 查找视频流和音频流
+        video_stream = self.container.streams.video[0]
+        audio_stream = self.container.streams.audio[0]
+
+        # 获取音频流的采样率
+        self.P("=================================================")
+        self.info_audio = {}
+        self.info_audio['audio_sample_rate'] = audio_stream.rate
+        self.info_audio['audio_channels'] = audio_stream.channels
+        self.info_audio['audio_format'] = audio_stream.format.name
+        for key in self.info_audio:self.P(f"{key}: {self.info_audio[key]}")
+        print()
+
+        self.info_video = {}
+        self.info_video['video_width'] = video_stream.width
+        self.info_video['video_height'] = video_stream.height
+        self.info_video['video_pixel_format'] = video_stream.format.name
+        self.info_video['video_codec_name'] = video_stream.codec.name
+        self.info_video['video_sample_rate'] = video_stream.average_rate.as_integer_ratio()
+        self.info_video['video_sample_rate'] = int(self.info_video['video_sample_rate'][0]/self.info_video['video_sample_rate'][1])
+        for key in self.info_video:self.P(f"{key}: {self.info_video[key]}")
+        self.P("=================================================")
+        print()
+        VIDEO_FPS = self.info_video['video_sample_rate']
+        START_STREAM = True
+        self.P("Finished to init the container ..")
+
         
     def modify_video_size(self,video_src_frame_size):
         def finetune(size):
@@ -55,43 +94,20 @@ class STREAM():
         return video_dst_frame_size
 
 
-    def read(self,url,video_dst_frame_size=[-1,-1]):
+    def read(self,url,video_dst_frame_size=[-1,-1],cache_size=10*60):
+
+        self.init_container(url)
+        self.init_cache(cache_size)
 
         if video_dst_frame_size != [-1,-1]:self.video_dst_frame_size = video_dst_frame_size
-        # 打开RTSP流
-        container = av.open(url)
-
-        # 查找视频流和音频流
-        video_stream = container.streams.video[0]
-        audio_stream = container.streams.audio[0]
-
-        # 获取音频流的采样率
-        self.P("=================================================")
-        info_audio = {}
-        info_audio['audio_sample_rate'] = audio_stream.rate
-        info_audio['audio_channels'] = audio_stream.channels
-        info_audio['audio_format'] = audio_stream.format.name
-        for key in info_audio:self.P(f"{key}: {info_audio[key]}")
-        print()
-
-        info_video = {}
-        info_video['video_width'] = video_stream.width
-        info_video['video_height'] = video_stream.height
-        info_video['video_pixel_format'] = video_stream.format.name
-        info_video['video_codec_name'] = video_stream.codec.name
-        info_video['video_sample_rate'] = video_stream.average_rate
-        for key in info_video:self.P(f"{key}: {info_video[key]}")
-        self.P("=================================================")
-        print()
-
-        video_src_frame_size = [info_video['video_width'],info_video['video_height']]
+        video_src_frame_size = [self.info_video['video_width'],self.info_video['video_height']]
         video_frame_size = self.modify_video_size(video_src_frame_size)
 
         # # 将视频和音频流写入输出文件
         s = time.time()
         video_count = 0
         audio_count = 0
-        for packet in container.demux():
+        for packet in self.container.demux():
 
             if not self.running:return
 
@@ -101,7 +117,7 @@ class STREAM():
                     self.at = frame.time
                     if self.start_record:
                         frame = frame.to_ndarray()[0]
-                        frame = soxr.resample(frame,in_rate=info_audio['audio_sample_rate'],out_rate=self.audio_dst_fps)
+                        frame = soxr.resample(frame,in_rate=self.info_audio['audio_sample_rate'],out_rate=self.audio_dst_fps)
                         frame = audio_f2i(frame,16)
                         push_audio_cache(frame)
                         audio_count += 1       
@@ -131,13 +147,12 @@ class STREAM():
                 print()
 
         # 关闭容器和输出文件
-        container.close()
+        self.container.close()
 
 
 if __name__ == "__main__":
 
     stm = STREAM()
-    stm.init_cache(2*60)
     # stm.read("rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp")
-    stm.read("test1.mp4")
+    stm.read("test1.mp4",cache_size=10*60)
     pass 

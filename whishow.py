@@ -70,10 +70,6 @@ class PLAY():
         return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
     
 
-
-
-
-
     def listen_audio(self):
         while self.running:
             with self.alock:
@@ -92,7 +88,7 @@ class PLAY():
                     s = time.time()
                     for frame in self.video_data:
                         frame = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR)
-                        frame = self.rewrite_video_frame(frame,text="[Whistrem Subtitle]")
+                        frame = self.rewrite_video_frame(frame,text="[Whistream Subtitle]")
                         cv2.imshow(self.win_name, frame)
                         key = cv2.waitKey(self.frame_wait)
                     self.P(f"listen_video -> frame[{self.vid}] -> cost:{time.time()-s}")
@@ -136,12 +132,13 @@ if __name__ == "__main__":
     # 读取视频流和音频流
     def process1():
         global stm
-        stm.init_cache(2*60)
-        stm.read(url,[600,600])
+        stm.read(url,[600,600],10*60)
 
     # 播放视频
     def process2():
         global ply
+        while not check_stream():
+            time.sleep(1)
         ply.init_state(0,1)
         ply.run()
 
