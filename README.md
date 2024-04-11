@@ -6,61 +6,29 @@
 #### Whistream（微流）是基于Whisper语音识别的的在线字幕生成工具，支持rtsp/rtmp/mp4等视频流在线语音识别
 
 ## 1. whishow介绍
-#### whishow（微秀）是在线音视频流播放python实现，支持rtsp/rtmp/mp4等输入，也是whistream的前端。python实现原理如下：
+#### whishow（微秀）是python实现的在线音视频流播放器，支持rtsp/rtmp/mp4等流式输入，也是whistream的前端。python实现原理如下：
 
+(1) SPROCESS.run() 的三个子线程负责：缓存流数据，处理音频缓存生成二级缓存，处理视频缓存生成二级缓存
 ```python
-if __name__ == "__main__":
-
-    stm = STREAM()
-    spc = SPROCESS()
-    ply = PLAY()
-    # url = sys.argv[1]
-    url = "test.mp4"
-
-    # 线程1：esc退出播放
-    def engine():
-        global ply
-        import keyboard
-        while 1:
-            if keyboard.is_pressed('esc'):
-                break
-            time.sleep(0.01)
-        stm.running = False
-        spc.running = False
-        ply.running = False
-
-    # 线程2：读取视频流和音频流 （保存一级cache）
-    def process1():
-        global stm
-        stm.read(url = "test.mp4",
-                video_dst_frame_size=[-1,-1],
-                cache_size=10*60)
-
-    # 线程2：处理帧（保存二级cache）
-    def process2():
-        global spc
-        while not check_stream():time.sleep(1)
-        spc.run(cache_size=2*60,asr=False,step=1)
-
-    # 播放视频 （播放二级cache）
-    def process3():
-        global ply
-        while not check_stream():time.sleep(1)
-        ply.init_state(start=0,step=1)
-        ply.run()
-
-    p0 = threading.Thread(target=engine,args=())
-    p1 = threading.Thread(target=process1,args=())
-    p2 = threading.Thread(target=process2,args=())
-    p3 = threading.Thread(target=process3,args=())
-
-    p0.start()
-    p1.start()
-    p2.start()
-    p3.start()
+def run(self,video_dst_frame_size=[-1,-1]):
+    ps = threading.Thread(target=self.stream.read,args=(video_dst_frame_size,))
+    pa = threading.Thread(target=self.process_audio,args=())
+    pu = threading.Thread(target=self.process_video,args=())
+    ps.start()
+    pa.start()
+    pu.start()
 
 ```
-
+(2) PLAY.run()对上述二级缓存进行在线播放
+```python
+def run(self,spc:SPROCESS):
+    ps = threading.Thread(target=spc.run,args=())
+    pa = threading.Thread(target=self.listen_audio,args=())
+    pv = threading.Thread(target=self.listen_video,args=())
+    ps.start()
+    pa.start()
+    pv.start()
+```
 exe下载地址：https://github.com/coolEphemeroptera/Whishow/releases
 
 #### whistream将在whishow基础上引入whisper进行在线语音识别生成视频字幕
