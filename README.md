@@ -19,6 +19,10 @@ demo 1: Simple play
 
 demo 2: Multithreading based stream processing and frame playback in Python
 ```python
+    from whishow import STREAM,PLAY
+    import keyboard
+    import threading
+
     # init the stream reader, named stm.
     stm = STREAM()
     stm.init_state(url=url,
