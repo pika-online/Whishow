@@ -30,6 +30,8 @@ class STREAM():
         self.running = True
         self.start_start = False
         self.stream_end = False
+        self.at = 0
+        self.vt = 0
         self.video_frame_quality = video_frame_quality
         self.AUDIO_FPS = AUDIO_FPS
         self.VIDEO_FPS = VIDEO_FPS
@@ -110,14 +112,13 @@ class STREAM():
         video_count = 0
         audio_count = 0
         pcount = 0
-        at = 0
-        wt = 0
+       
 
         for packet in self.container.demux():
             if not self.running:break
             if packet.stream.type == 'audio':
                 for frame in packet.decode():
-                    at = frame.time
+                    self.at = frame.time
                     if self.start_start:
                         audio_count += 1       
                         frame = frame.to_ndarray()[0]
@@ -131,7 +132,7 @@ class STREAM():
 
             if packet.stream.type == 'video':
                 for frame in packet.decode():
-                    wt = frame.time
+                    self.vt = frame.time
                     if self.start_start:
                         video_count += 1
                         frame = frame.to_image()
@@ -144,11 +145,11 @@ class STREAM():
 
             pcount += 1
 
-            if at>0 :
+            if self.at>0 :
                 self.start_start = True
 
             if(time.time()-s>1):
-                self.P("SEEK(AUDIO):%s, SEEK(VIDEO):%s"%(format_timestamp(at),format_timestamp(wt)))
+                self.P("SEEK(AUDIO):%s, SEEK(VIDEO):%s"%(format_timestamp(self.at),format_timestamp(self.vt)))
                 self.P("Aduio(FPS):%sK, play_qsize:%s, asr_qsize:%s"%(audio_count,self.Q_audio_play.qsize(),self.Q_audio_asr.qsize()))
                 self.P("Video(FPS):%s, play_qsize:%s"%(video_count,self.Q_video_play.qsize()))
                 s = time.time()

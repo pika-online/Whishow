@@ -14,7 +14,7 @@ def player(url,video_dst_frame_size=[640,320]):
     # init the whishow player, and connect the audio/video stream of stm.
     ply = PLAY()
     ply.init_state(chunk_size=1,
-                video_frame_shift=20,
+                video_frame_shift=15,
                 audio_fps=stm.AUDIO_FPS,
                 video_fps=stm.VIDEO_FPS,
                 Q_audio_play=stm.Q_audio_play,

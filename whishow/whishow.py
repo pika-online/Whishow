@@ -147,7 +147,7 @@ class PLAY():
         pv.start()
         self.asr_index = 0
         while 1:
-            time.sleep(0.1)
+            time.sleep(0.001)
             if not self.running:
                 break
             # if show_subtitle and not self.asr_results:continue

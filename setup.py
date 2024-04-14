@@ -18,7 +18,7 @@ URL = 'https://github.com/coolEphemeroptera/Whishow'
 EMAIL = 'coolephemeroptera@gmail.com'
 AUTHOR = 'wei.wang'
 REQUIRES_PYTHON = '>=3.10.0'
-VERSION = '1.3.4'
+VERSION = '1.3.5'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
