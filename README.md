@@ -26,19 +26,20 @@ demo 2: Multithreading based stream processing and frame playback in Python
     # init the stream reader, named stm.
     stm = STREAM()
     stm.init_state(url=url,
-                    cache_size=10*60)
+                    cache_size=10*60,
+                    video_frame_quality=50)
+                    
     # init the whishow player, and connect the audio/video stream of stm.
     ply = PLAY()
-    ply.init_state(start=0,
-                    chunk_size=1,
-                    video_frame_shift=20,
-                    audio_fps=stm.AUDIO_FPS,
-                    video_fps=stm.VIDEO_FPS,
-                    Q_audio_play=stm.Q_audio_play,
-                    Q_video_play=stm.Q_video_play,
-                    asr_results=[])
+    ply.init_state(chunk_size=1,
+                video_frame_shift=20,
+                audio_fps=stm.AUDIO_FPS,
+                video_fps=stm.VIDEO_FPS,
+                Q_audio_play=stm.Q_audio_play,
+                Q_video_play=stm.Q_video_play,
+                asr_results=[])
 
-    # thread-0: esc for exit
+    # esc for exit
     def engine():
         while 1:
             if keyboard.is_pressed('esc'):
@@ -48,15 +49,15 @@ demo 2: Multithreading based stream processing and frame playback in Python
         stm.running = False
         ply.running = False
 
-    # thread-1: stream reader
+    # stream reader
     def stream():
         stm.read(video_dst_frame_size=video_dst_frame_size,
                 is_play=True,
                 is_asr=False)
 
-    # thread-2: stream palyer
+    # stream palyer
     def play():
-        ply.run(show_subtitle=False)
+        ply.run()
 
     p0 = threading.Thread(target=engine,args=())
     p1 = threading.Thread(target=stream,args=())

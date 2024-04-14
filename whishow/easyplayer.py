@@ -9,17 +9,17 @@ def player(url,video_dst_frame_size=[640,320]):
     # init the stream reader, named stm.
     stm = STREAM()
     stm.init_state(url=url,
-                    cache_size=10*60)
+                    cache_size=10*60,
+                    video_frame_quality=50)
     # init the whishow player, and connect the audio/video stream of stm.
     ply = PLAY()
-    ply.init_state(start=0,
-                    chunk_size=1,
-                    video_frame_shift=20,
-                    audio_fps=stm.AUDIO_FPS,
-                    video_fps=stm.VIDEO_FPS,
-                    Q_audio_play=stm.Q_audio_play,
-                    Q_video_play=stm.Q_video_play,
-                    asr_results=[])
+    ply.init_state(chunk_size=1,
+                video_frame_shift=20,
+                audio_fps=stm.AUDIO_FPS,
+                video_fps=stm.VIDEO_FPS,
+                Q_audio_play=stm.Q_audio_play,
+                Q_video_play=stm.Q_video_play,
+                asr_results=[])
 
     # esc for exit
     def engine():
@@ -39,7 +39,7 @@ def player(url,video_dst_frame_size=[640,320]):
 
     # stream palyer
     def play():
-        ply.run(show_subtitle=False)
+        ply.run()
 
     p0 = threading.Thread(target=engine,args=())
     p1 = threading.Thread(target=stream,args=())

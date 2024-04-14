@@ -1,0 +1,16 @@
+LICENSE
+MANIFEST.in
+README.rst
+setup.py
+whishow/NotoSansCJKsc-Regular.ttf
+whishow/__init__.py
+whishow/__main__.py
+whishow/easyplayer.py
+whishow/stream.py
+whishow/utils.py
+whishow/whishow.py
+whishow.egg-info/PKG-INFO
+whishow.egg-info/SOURCES.txt
+whishow.egg-info/dependency_links.txt
+whishow.egg-info/requires.txt
+whishow.egg-info/top_level.txt

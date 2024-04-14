@@ -1,0 +1,8 @@
+pyav
+opencv-python
+soxr
+pillow
+pyaudio
+numpy
+pyyaml
+keyboard

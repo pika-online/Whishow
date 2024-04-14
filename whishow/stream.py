@@ -19,16 +19,18 @@ class STREAM():
     def init_state(self,
                    url:str="",
                    cache_size:int=5*60,
-                   AUDIO_FPS = 16000,
-                   VIDEO_FPS = 30):
+                   video_frame_quality:int=90,
+                   AUDIO_FPS:int = 16000,
+                   VIDEO_FPS:int = 30):
         """
         url: the video address to play
         cache_size: the buffer size to build audio/video cache (seconds) 
-
+        video_frame_quality: Lower picture quality means a smaller buffer
         """
         self.running = True
         self.start_start = False
         self.stream_end = False
+        self.video_frame_quality = video_frame_quality
         self.AUDIO_FPS = AUDIO_FPS
         self.VIDEO_FPS = VIDEO_FPS
         self.init_container(url)
@@ -136,7 +138,7 @@ class STREAM():
                         frame = np.asarray(frame)
                         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                         frame = cv2.resize(frame,video_mdf_frame_size)
-                        frame= cv2.imencode('.jpg', frame,[cv2.IMWRITE_JPEG_QUALITY, 90])[1]
+                        frame= cv2.imencode('.jpg', frame,[cv2.IMWRITE_JPEG_QUALITY, self.video_frame_quality])[1]
                         if is_play:
                             self.Q_video_play.put(frame)
 
@@ -166,8 +168,4 @@ class STREAM():
 
 if __name__ == "__main__":
 
-    # url = "rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp"
-    url = "test.mp4"
-    stm = STREAM()
-    stm.init_state(url=url,cache_size=10*60)
-    stm.read(video_dst_frame_size=[-1,-1])
+    pass
